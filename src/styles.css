@@ -1,0 +1,109 @@
+:root {
+  --color-background: rgba(0, 0, 0, 0.85);
+  --color-text: white;
+}
+
+/* Basic page style resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  border-radius: 5px;
+  font-size: 30px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.Alert {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  padding: 1em;
+  border-radius: 10px;
+  width: 100%;
+}
+
+.AlertError {
+  color: #ffa9a9;
+}
+
+.List {
+  position: relative;
+  padding: 1em 0;
+}
+
+.ListHidden {
+  display: none;
+}
+
+.List::-webkit-scrollbar {
+  display: none;
+}
+
+.Message {
+  display: inline-block;
+  padding: 0.5em;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border-radius: 10px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+.RowMostRecent {
+  animation: rowIn 1s ease-out forwards;
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateX(10%);
+  }
+}
+
+.MessageUser {
+  display: inline;
+  padding-bottom: 0.25em;
+  vertical-align: middle;
+}
+
+.MessageUserPronouns,
+.MessageUserUsername {
+  display: inline;
+  margin-right: 0.5rem;
+}
+
+.MessageUserPronouns {
+  background: #bba0e3;
+  color: black;
+  border-radius: 3px;
+  padding: 4px 5px;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.MessageUserUsername {
+  font-weight: bold;
+}
+
+.MessageText {
+  display: inline;
+  line-height: 1.15em;
+}
+
+.MessageTextEmote {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  transform: translateY(0.15em) scale(1.5);
+  margin: 0 0.45em;
+}
