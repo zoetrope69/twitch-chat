@@ -199,7 +199,7 @@ export default function Home() {
 
   async function getTwitchUserId(channelName) {
     const response = await fetch(
-      `http://localhost:42393/.netlify/functions/twitch-user?username=${channelName}`
+      `/.netlify/functions/twitch-user?username=${channelName}`
     );
 
     const { id } = await response.json();
