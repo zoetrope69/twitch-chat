@@ -1,5 +1,3 @@
-import replaceAll from "replaceall";
-
 let BETTER_TTV_EMOTES = null;
 
 async function getBetterTTVEmotes(channelId) {
