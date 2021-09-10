@@ -16,11 +16,11 @@ async function getBetterTTVEmotes(channelId) {
     return [];
   }
 
-  return [...json.channelEmotes, ...json.sharedEmotes].map(emote => ({
+  return [...json.channelEmotes, ...json.sharedEmotes].map((emote) => ({
     type: "betterttv",
     id: emote.id,
     image: `https://cdn.betterttv.net/emote/${emote.id}/3x`,
-    code: emote.code
+    code: emote.code,
   }));
 }
 
@@ -41,7 +41,7 @@ function getTwitchEmotes(text, emotes, channelId) {
 
   const emotePositions = [];
 
-  Object.keys(emotes).forEach(emoteId => {
+  Object.keys(emotes).forEach((emoteId) => {
     const emoteStringPositions = emotes[emoteId];
 
     const [emoteStringPosition] = emoteStringPositions;
@@ -50,10 +50,8 @@ function getTwitchEmotes(text, emotes, channelId) {
       return;
     }
 
-    const [
-      emoteStartPositionString,
-      emoteEndPositionString
-    ] = emoteStringPosition.split("-");
+    const [emoteStartPositionString, emoteEndPositionString] =
+      emoteStringPosition.split("-");
     const emoteStartPosition = parseInt(emoteStartPositionString, 10);
     const emoteEndPosition = parseInt(emoteEndPositionString, 10);
 
@@ -63,7 +61,7 @@ function getTwitchEmotes(text, emotes, channelId) {
       type: "twitch",
       id: emoteId,
       image: `https://static-cdn.jtvnw.net/emoticons/v2/${emoteId}/default/dark/3.0`,
-      code: emoteText
+      code: emoteText,
     });
   });
 
@@ -75,16 +73,25 @@ function replaceEmotes(text, emotes) {
     return text;
   }
 
-  let replacedText = `${text} `; // add some padding to right
-  emotes.forEach(({ type, image, code }) => {
-    // adding padding so we don't replace emote code inside of text
-    const paddedCode = ` ${code} `;
-    const emoteImageElement = ` <img class="MessageTextEmote MessageTextEmote--${type}" src="${image}" alt="${code}" /> `;
+  const textTokens = text.split(" ");
 
-    replacedText = replaceAll(paddedCode, emoteImageElement, replacedText);
+  const newTokens = textTokens.map((textToken) => {
+    const emote = emotes.find(({ code }) => code === textToken);
+    if (emote) {
+      const { type, code, image } = emote;
+      return `
+        <img
+          class="MessageTextEmote MessageTextEmote--${type}"
+          src="${image}"
+          alt="${code}"
+          />
+      `.trim();
+    }
+
+    return textToken;
   });
 
-  return replacedText.trim();
+  return newTokens.join(" ").trim();
 }
 
 async function replaceTextWithEmotes(text, emoteDataFromTwitchBot, channelId) {
