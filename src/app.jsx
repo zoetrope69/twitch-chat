@@ -99,7 +99,7 @@ export default function Home() {
   }
 
   function addToChatMessage(chatMessage) {
-    setChatMessages(previousChatMessages => {
+    setChatMessages((previousChatMessages) => {
       return [...previousChatMessages, chatMessage];
     });
   }
@@ -117,7 +117,7 @@ export default function Home() {
     "#B22222": "#E05B5B", // Firebrick
     "#2E8B57": "#3DB974", // Sea Green
     "#D2691E": "#E1762A", // Chocolate
-    "#8A2BE2": "#CF9AFF" // Blue Violet
+    "#8A2BE2": "#CF9AFF", // Blue Violet
   };
 
   function getColor(color) {
@@ -169,9 +169,9 @@ export default function Home() {
       user: {
         color: getColor(color),
         username,
-        pronouns
+        pronouns,
       },
-      text: textWithEmotes
+      text: textWithEmotes,
     });
   }
 
@@ -182,11 +182,11 @@ export default function Home() {
 
     const twitchChat = new TwitchChat(channel.name, setErrorMessage);
 
-    twitchChat.client.on("error", e => {
+    twitchChat.client.on("error", (e) => {
       setErrorMessage(e.message);
     });
 
-    twitchChat.client.on("join", data => {
+    twitchChat.client.on("join", (data) => {
       setIsConnecting(false);
     });
 
@@ -196,15 +196,29 @@ export default function Home() {
 
     twitchChat.client.on("message", handleChatMessage);
   }
-  
-  function getParamVariables() {
+
+  async function getTwitchUserId(channelName) {
+    const response = await fetch(
+      `http://localhost:42393/.netlify/functions/twitch-user?username=${channelName}`
+    );
+
+    const { id } = await response.json();
+
+    if (!id) {
+      throw new Error("No user ID");
+    }
+
+    return id;
+  }
+
+  async function getParamVariables() {
     if (!window) {
       return;
     }
 
     const params = new URLSearchParams(window.location.search);
     const channelName = params.get("channelName");
-    const channelId = params.get("channelId");
+    let channelId = params.get("channelId");
     const hiddenUsers = params.get("hiddenUsers");
 
     const noChannelName = !channelName || channelName.length === 0;
@@ -215,9 +229,14 @@ export default function Home() {
 
     const noChannelId = !channelId || channelId.length === 0;
     if (noChannelId) {
-      setErrorMessage(
-        "Missing ?channelId= in the URL. Type in chat to get user ID."
-      );
+      try {
+        channelId = await getTwitchUserId(channelName);
+      } catch (error) {
+        console.error(error);
+        setErrorMessage(
+          "Couldn't get a channel ID for your channel name. Is it correct?"
+        );
+      }
     }
 
     if (hiddenUsers) {

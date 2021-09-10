@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "a simple obs twitch chat overlay",
   "scripts": {
-    "start": "vite",
+    "start": "vite --host",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "npm run build && vite preview --host"
   },
   "dependencies": {
     "node-fetch": "^3.0.0",
