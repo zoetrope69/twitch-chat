@@ -1,8 +1,6 @@
 require("dotenv").config();
 
-const fetch = (...args) => {
-  return import("node-fetch").then(({ default: fetch }) => fetch(...args));
-};
+const fetch = require("node-fetch");
 
 const { TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET } = process.env;
 const SCOPES = ["user:read:email"];
