@@ -41,11 +41,15 @@ async function getTwitchUserId(authToken, username) {
 
   const json = await response.json();
 
-  if (!json?.data?.[0]?.id) {
+  if (!json || !json.data || json.data.length == 0) {
+    throw new Error("Missing data from Twitch API");
+  }
+
+  if (!json.data[0].id) {
     throw new Error(`Couldnt get Twitch User ID for ${username}`);
   }
 
-  return json?.data?.[0].id;
+  return json.data[0].id;
 }
 
 const handler = async (event) => {
@@ -54,7 +58,7 @@ const handler = async (event) => {
       throw new Error("Missing environment variables");
     }
 
-    if (!event?.queryStringParameters?.username) {
+    if (!event.queryStringParameters.username) {
       throw new Error("Missing username query string");
     }
 
