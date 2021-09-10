@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { Fragment, useState, useEffect, useRef } from "react";
 import { VariableSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -28,12 +29,14 @@ export default function Home() {
   // on load
   useEffect(() => {
     getParamVariables();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (channel.name) {
       initialiseChat();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel]);
 
   useEffect(() => {
@@ -50,7 +53,7 @@ export default function Home() {
       if (rowRef.current) {
         setRowHeight(index, rowRef.current.clientHeight);
       }
-    }, [rowRef]);
+    }, [index, rowRef]);
 
     const chatMessage = chatMessages[index];
 
@@ -78,6 +81,7 @@ export default function Home() {
           </div>
           <div
             className="MessageText"
+            // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: chatMessage.text }}
           />
         </div>
@@ -135,8 +139,7 @@ export default function Home() {
     return color;
   }
 
-  async function handleChatMessage(_channel, data, message, self) {
-    console.log("message data", data);
+  async function handleChatMessage(_channel, data, message) {
     const { id, color, emotes } = data;
     const username = data["display-name"];
 
@@ -155,6 +158,7 @@ export default function Home() {
     try {
       pronouns = await getUserPronouns(username);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
 
@@ -186,7 +190,7 @@ export default function Home() {
       setErrorMessage(e.message);
     });
 
-    twitchChat.client.on("join", (data) => {
+    twitchChat.client.on("join", () => {
       setIsConnecting(false);
     });
 
@@ -232,6 +236,7 @@ export default function Home() {
       try {
         channelId = await getTwitchUserId(channelName);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(error);
         setErrorMessage(
           "Couldn't get a channel ID for your channel name. Is it correct?"

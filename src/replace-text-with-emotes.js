@@ -32,7 +32,7 @@ async function getCachedBetterTTVEmotes(channelId) {
   return BETTER_TTV_EMOTES;
 }
 
-function getTwitchEmotes(text, emotes, channelId) {
+function getTwitchEmotes(text, emotes) {
   if (!emotes || Object.keys(emotes).length === 0) {
     return [];
   }
