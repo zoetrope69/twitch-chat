@@ -16,16 +16,15 @@ export default class TwitchChat {
 
     this.client = new tmi.Client({
       options: {
-        messagesLogLevel: "info"
+        messagesLogLevel: "info",
       },
       channels: [this.channel],
       logger: {
-        info: message => console.info(message),
-        warn: message => console.warn(message),
-        error: message => setErrorMessage(message)
-      }
+        info: (message) => console.info(message), // eslint-disable-line no-console
+        warn: (message) => console.warn(message), // eslint-disable-line no-console
+        error: (message) => setErrorMessage(message),
+      },
     });
-    
 
     this.client.connect();
   }

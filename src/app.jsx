@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { Fragment, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { VariableSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Router } from "wouter";
@@ -46,49 +46,6 @@ export default function Home() {
     // eslint-disable-next-line
   }, [chatMessages]);
 
-  function Row({ index, style }) {
-    const rowRef = useRef({});
-
-    useEffect(() => {
-      if (rowRef.current) {
-        setRowHeight(index, rowRef.current.clientHeight);
-      }
-    }, [index, rowRef]);
-
-    const chatMessage = chatMessages[index];
-
-    const isMostRecent = index === chatMessages.length - 1;
-
-    return (
-      <div
-        className={`Row ${isMostRecent ? "RowMostRecent" : ""}`}
-        style={style}
-        key={chatMessage.id}
-      >
-        <div ref={rowRef} className="Message">
-          <div className="MessageUser">
-            {chatMessage.user.pronouns && (
-              <div className="MessageUserPronouns">
-                {chatMessage.user.pronouns}
-              </div>
-            )}
-            <div
-              className="MessageUserUsername"
-              style={{ color: chatMessage.user.color }}
-            >
-              {chatMessage.user.username}
-            </div>
-          </div>
-          <div
-            className="MessageText"
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: chatMessage.text }}
-          />
-        </div>
-      </div>
-    );
-  }
-
   function getRowHeight(index) {
     return rowHeights.current[index] + ROW_SPACING || MIN_ROW_HEIGHT;
   }
@@ -102,7 +59,21 @@ export default function Home() {
     listRef.current.scrollToItem(chatMessages.length - 1, "end");
   }
 
-  function addToChatMessage(chatMessage) {
+  function removeMessageFromChatMessage(id) {
+    setChatMessages((previousChatMessages) => {
+      return previousChatMessages.filter((message) => message.id !== id);
+    });
+  }
+
+  function removeUserFromChatMessages(username) {
+    setChatMessages((previousChatMessages) => {
+      return previousChatMessages.filter((message) => {
+        return message.user.username.toLowerCase() !== username.toLowerCase();
+      });
+    });
+  }
+
+  function addMessageToChatMessage(chatMessage) {
     setChatMessages((previousChatMessages) => {
       return [...previousChatMessages, chatMessage];
     });
@@ -133,8 +104,6 @@ export default function Home() {
     if (readableColor) {
       return readableColor;
     }
-
-    // TODO handle custom colours with ratio check
 
     return color;
   }
@@ -168,7 +137,7 @@ export default function Home() {
       channel.id
     );
 
-    addToChatMessage({
+    addMessageToChatMessage({
       id,
       user: {
         color: getColor(color),
@@ -177,6 +146,15 @@ export default function Home() {
       },
       text: textWithEmotes,
     });
+  }
+
+  function handleDeletedMessage(_channel, _username, _deletedMessage, data) {
+    const id = data["target-msg-id"];
+    removeMessageFromChatMessage(id);
+  }
+
+  function handleRemovedUser(_channel, username) {
+    removeUserFromChatMessages(username);
   }
 
   function initialiseChat() {
@@ -198,6 +176,9 @@ export default function Home() {
       setChatMessages([]);
     });
 
+    twitchChat.client.on("timeout", handleRemovedUser);
+    twitchChat.client.on("ban", handleRemovedUser);
+    twitchChat.client.on("messagedeleted", handleDeletedMessage);
     twitchChat.client.on("message", handleChatMessage);
   }
 
@@ -250,6 +231,43 @@ export default function Home() {
     setChannel({ name: channelName, id: channelId });
   }
 
+  const Row = ({ index, style }) => {
+    const chatMessage = chatMessages[index];
+
+    const rowRef = useRef({});
+
+    useEffect(() => {
+      if (rowRef.current) {
+        setRowHeight(index, rowRef.current.clientHeight);
+      }
+    }, [index, rowRef]);
+
+    return (
+      <div style={style} key={chatMessage.id}>
+        <div ref={rowRef} className="Message">
+          <div className="MessageUser">
+            {chatMessage.user.pronouns && (
+              <div className="MessageUserPronouns">
+                {chatMessage.user.pronouns}
+              </div>
+            )}
+            <div
+              className="MessageUserUsername"
+              style={{ color: chatMessage.user.color }}
+            >
+              {chatMessage.user.username}
+            </div>
+          </div>
+          <div
+            className="MessageText"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: chatMessage.text }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Router>
       {isConnecting && !hasErrorMessage && (
@@ -259,21 +277,19 @@ export default function Home() {
 
       <AutoSizer>
         {({ height, width }) => (
-          <Fragment>
-            <List
-              className={`List ${
-                isConnecting || hasErrorMessage ? "ListHidden" : ""
-              }`}
-              ref={listRef}
-              height={height}
-              itemCount={chatMessages.length}
-              itemSize={getRowHeight}
-              estimatedItemSize={MIN_ROW_HEIGHT}
-              width={width}
-            >
-              {Row}
-            </List>
-          </Fragment>
+          <List
+            className={`List ${
+              isConnecting || hasErrorMessage ? "ListHidden" : ""
+            }`}
+            ref={listRef}
+            height={height}
+            itemCount={chatMessages.length}
+            itemSize={getRowHeight}
+            estimatedItemSize={MIN_ROW_HEIGHT}
+            width={width}
+          >
+            {Row}
+          </List>
         )}
       </AutoSizer>
     </Router>

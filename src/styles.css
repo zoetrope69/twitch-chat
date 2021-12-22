@@ -59,17 +59,6 @@ body,
   max-width: 100%;
 }
 
-.RowMostRecent {
-  animation: rowIn 1s ease-out forwards;
-}
-
-@keyframes rowIn {
-  from {
-    opacity: 0;
-    transform: translateX(10%);
-  }
-}
-
 .MessageUser {
   display: inline;
   padding-bottom: 0.25em;
